@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #f8efc0;
+        }
+
+        #box {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            text-align: center;
+            display: none;
+        }
+
+        #box span {
+            color: red;
+            font-size: 30px;
+            display: inline-block;
+            margin-top: 100px;
+            margin-bottom: 100px;
+        }
+
+        #btn {
+            width: 100px;
+            height: 30px;
+            border: 0;
+            background-color: orangered;
+            cursor: pointer;
+        }
+
+        #head {
+            width: 100%;
+            height: 50px;
+            background-color: darkgray;
+            line-height: 50px;
+            position: relative;
+            font-size: 18px;
+        }
+
+        #btns {
+            position: absolute;
+            right: 0;
+            width: 100px;
+            height: 50px;
+            border: 0;
+            background-color: lightgray;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .bttn {
+            width: 150px;
+            height: 40px;
+            font-size: 20px;
+            background-color: orange;
+            cursor: pointer;
+        }
+
+        #container {
+            width: 100%;
+            text-align: center;
+            margin-top: 300px;
+        }
+
+        #questions {
+            display: none;
+            text-align: center;
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        #inp {
+            width: 800px;
+            height: 300px;
+            font-size: 24px;
+        }
+
+        #cases {
+            width: 600px;
+            height: 200px;
+            position: absolute;
+            left: calc((100% - 600px) / 2);
+            top: 300px;
+            border: 1px solid black;
+            text-align: center;
+            display: none;
+            color: red;
+        }
+
+        #cases span {
+            display: inline-block;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #subbtn {
+            width: 150px;
+            height: 40px;
+            font-size: 20px;
+            background-color: orange;
+            cursor: pointer;
+        }
+        #stugrade {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            position: absolute;
+            left: 0;
+            top:0;
+            text-align: center;
+        }
+        #stugrade span {
+            color: red;
+            font-size: 30px;
+            display: inline-block;
+            margin-top: 100px;
+            margin-bottom: 100px;
+        }
+
+        #stug {
+            width: 100px;
+            height: 30px;
+            border: 0;
+            background-color: orangered;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="box">
+    <span>试卷已提交，请耐心等待老师批改成绩</span><br>
+    <button onclick="quit()" id="btn">退出</button>
+</div>
+
+<div id="body">
+    <div id="head">
+        <span style="padding-left: 20px">欢迎:</span><span></span>
+        <button onclick="quit()" id="btns">退出</button>
+    </div>
+    <div id="cases">
+        <span>提示:答题已经结束，请提交考卷</span><br>
+        <button onclick="sub()" id="subbtn">提交</button>
+    </div>
+    <div id="container">
+        <button onclick="startAnswer()" class="bttn"><strong>点击开始答题</strong></button>
+    </div>
+    <div id="questions">
+        <span>题目:</span><br>
+        <div style="width: 800px;height: 300px;border: 1px solid black">
+            <span id="qst"></span>
+        </div>
+        <span>您的答案:</span><br>
+        <textarea id="inp"></textarea>
+        <button onclick="nextQues()" class="bttn">下一题</button>
+    </div>
+</div>
+<div id="stugrade">
+    <span>您的分数为:</span><span id="grades"></span><span>分</span><br>
+    <button onclick="quit()" id="stug">退出</button>
+</div>
+<script>
+    var temp = 0;
+    var arr = [];
+    var obj = {};
+    var box = document.getElementById('box');
+    var head = document.getElementById('head');
+    var span = head.getElementsByTagName('span')[1];
+    var cases = document.getElementById('cases');
+    var grades = document.getElementById('grades');
+    var stugrade = document.getElementById('stugrade');
+    var inp = document.getElementById('inp');
+    var brr = [1, 2, 3, 4, 5];
+
+    /*退出*/
+    function quit() {
+        location.href = 'index.html';
+    }
+
+    var container = document.getElementById('container');
+    var questions = document.getElementById('questions');
+
+    /*点击开始答题*/
+    function startAnswer() {
+        container.style.display = 'none';
+        questions.style.display = 'block';
+
+        loadXML();
+    }
+
+    /*获取登录信息*/
+    var name = sessionStorage.getItem('name');
+    if(name == 'null') {
+        name = '游客';
+    }
+    var status = sessionStorage.getItem('status');
+    if (status == -1) {
+        box.style.display = 'block';
+    }
+    else if(status>=0) {
+        grades.innerHTML = status;
+        stugrade.style.display = 'block';
+    }
+    span.innerHTML = name + '同学';
+
+
+    function loadXML() {
+        var x = Math.floor(Math.random() * brr.length);
+        var xmlhttp;
+        if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+        }
+        else {
+            xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+        }
+        xmlhttp.open('post', 'http://127.0.0.1:3020', true);
+        xmlhttp.send('index=' + JSON.stringify(brr[x]));
+        brr.splice(x,1);
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var data = JSON.parse(xmlhttp.responseText);
+                obj.index = data[0]._id;
+                var qst = document.getElementById('qst');
+                qst.innerHTML = data[0].question;
+                ++temp;
+            }
+        };
+    }
+
+    function nextQues() {
+        obj.anwser_content = inp.value;
+        arr.push(obj);
+        console.log(arr);
+        obj = {};
+        if (temp >= 2) {
+            cases.style.display = 'block';
+            questions.style.display = 'none';
+        }
+        else {
+            loadXML();
+            inp.value = '';
+        }
+    }
+
+    /*提交*/
+    function sub() {
+        cases.style.display = 'none';
+        box.style.display = 'block';
+
+        var xmlhttp;
+        if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+        }
+        else {
+            xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+        }
+        xmlhttp.open('post', 'http://127.0.0.1:3030', true);
+        xmlhttp.send('username=' + name + '&anwser=' + JSON.stringify(arr));
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var data = JSON.parse(xmlhttp.responseText);
+
+            }
+        };
+    }
+
+
+</script>
+</body>
+</html>

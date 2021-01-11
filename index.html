@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: darkblue;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #box {
+            width: 500px;
+            height: 500px;
+            border: 1px solid black;
+            text-align: center;
+            color: white;
+        }
+
+        #head {
+            display: inline-block;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        #box div {
+            width: 400px;
+            height: 50px;
+            margin-left: 50px;
+        }
+
+        #btn {
+            margin-top: 20px;
+            width: 200px;
+            height: 50px;
+            line-height: 50px;
+            background-color: orange;
+        }
+        .sp {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body type="module">
+<form id="box">
+    <span id="head">用户注册表</span><br>
+    <div>
+        <span>用户名:</span>
+        <input type="text" id="ip1">
+        <span class="sp">用户名不能为空</span>
+    </div>
+    <div>
+        <span>密码:</span>
+        <input type="password" id="ip2">
+        <span class="sp">密码不能为空</span>
+    </div>
+    <div>
+        <input type="radio" name="radio" id="radio1"><span>学生</span>
+        <input type="radio" name="radio" id="radio2"><span>老师</span>
+    </div>
+    <button onclick="loadXML()" disabled id="btn" type="button">登录</button>
+</form>
+<script>
+    var arr = [0,0,0];
+    var ip1 = document.getElementById('ip1');
+    var ip2 = document.getElementById('ip2');
+    var radio1 = document.getElementById('radio1');
+    var radio2 = document.getElementById('radio2');
+    var sp = document.getElementsByClassName('sp')[0];
+    var sp1 = document.getElementsByClassName('sp')[1];
+    var temp;
+
+    function check() {
+        if (arr[0] + arr[1] + arr[2] == 3) {
+            btn.removeAttribute('disabled');
+        }
+        else {
+            btn.setAttribute('disabled', '');
+        }
+    }
+    document.onclick = function () {
+        if(radio1.checked||radio2.checked) {
+            arr[2] = 1;
+            if(radio1.checked) {
+                temp = 0;
+            }
+            else {
+                temp = 1;
+            }
+        }
+        else {
+            arr[2] = 0;
+        }
+        check();
+    };
+    ip1.onblur = function () {
+        var str = ip1.value;
+        if (str) {
+            arr[0] = 1;
+            sp.style.display = 'none';
+        }
+        else {
+            arr[0] = 0;
+            sp.style.display = 'block';
+        }
+        check();
+    };
+
+    ip2.onblur = function () {
+        var str = ip2.value;
+        if (str) {
+            arr[1] = 1;
+            sp1.style.display = 'none';
+        }
+        else {
+            arr[1] = 0;
+            sp1.style.display = 'block';
+        }
+        check();
+    };
+
+    function loadXML() {
+        var xmlhttp;
+        if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+        }
+        else {
+            xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+        }
+        xmlhttp.open('post', 'http://127.0.0.1:3010', true);
+        xmlhttp.send('username=' + ip1.value + '&pwd=' + ip2.value + '&identity=' + temp);
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var data = JSON.parse(xmlhttp.responseText);
+                //console.log(data.log);
+                if(data.log==0) {
+                    location.href = 'studentbg.html';
+                    sessionStorage.setItem('name',ip1.value);
+                    sessionStorage.setItem('status',data.logs);
+                }
+                else if(data.log==1) {
+                    location.href = 'teacherbg.html';
+                    sessionStorage.setItem('name',ip1.value);
+                }
+                else {
+                    alert('用户名或密码错误')
+                }
+            }
+        };
+    }
+
+</script>
+</body>
+</html>

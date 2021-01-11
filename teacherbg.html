@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        html,body {
+            width:100%;
+            height: 100%;
+            background-color: #f8efc0;
+        }
+        #head {
+            width: 100%;
+            height: 50px;
+            background-color: darkgray;
+            line-height: 50px;
+            position: relative;
+            font-size: 18px;
+        }
+        #btns {
+            position: absolute;
+            right:0;
+            width:100px;
+            height: 50px;
+            border: 0;
+            background-color: lightgray;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        #cases {
+            width: 100%;
+            margin-top: 100px;
+        }
+        #box {
+            width: 800px;
+            height: 400px;
+            border: 1px solid black;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+        #box div {
+            width: 180px;
+            height: 180px;
+            text-align: center;
+            background-color: white;
+            margin-left: 20px;
+            margin-top: 20px;
+            border: 1px solid black;
+            border-radius: 20px;
+            box-shadow: 0 0 3px 2px gray;
+            cursor: pointer;
+        }
+        #wrap {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #container {
+            width: 700px;
+            margin: 0 auto;
+            border: 1px solid black;
+            height: 600px;
+            font-weight: bold;
+        }
+        .divs {
+            width: 500px;
+            height: 100px;
+            margin: 0 auto;
+            border:1px solid black;
+        }
+        #texts {
+            width: 500px;
+            height: 100px;
+            margin: 0 auto;
+            display: block;
+        }
+        .words {
+            font-size: 18px;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+            margin-top: 10px;
+        }
+        #btn {
+            width: 150px;
+            height: 40px;
+            font-size: 20px;
+            background-color: orange;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        #wrapper {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top:0;
+            background-color: rgba(0,0,0,0.8);
+            text-align: center;
+            display: none;
+        }
+        #wrapper span {
+            color: red;
+            font-size: 30px;
+            display: inline-block;
+            margin-top: 100px;
+            margin-bottom: 100px;
+        }
+
+        #btnq {
+            width: 100px;
+            height: 30px;
+            border: 0;
+            background-color: orangered;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="head">
+    <span style="padding-left: 20px">欢迎:</span><span></span>
+    <button onclick="quit()" id="btns">退出</button>
+</div>
+<div id="cases">
+    <div id="box">
+
+    </div>
+</div>
+<div id="wrap">
+    <div id="container">
+        <span class="words" style="margin-top: 30px">当前学生:</span><span class="sp"></span><br>
+        <span class="words">当前题号:</span><span class="sp"></span><br>
+        <span class="words">当前题目:</span><br>
+        <div class="divs"></div>
+        <span class="words">当前答案:</span><br>
+        <div class="divs"></div>
+        <span class="words">您的分数:</span><br>
+        <textarea id="texts"></textarea><br>
+        <button id="btn" onclick="nextQues()">下一题</button>
+    </div>
+</div>
+<div id="wrapper">
+    <span>试卷已批改，点击提交学生分数并返回</span><br>
+    <button onclick="backs()" id="btnq">提交并返回</button>
+</div>
+<script>
+    var grade = 0;
+    var box= document.getElementById('box');
+    var head = document.getElementById('head');
+    var cases = document.getElementById('cases');
+    var wrap = document.getElementById('wrap');
+    var span = head.getElementsByTagName('span')[1];
+    var sp = document.getElementsByClassName('sp');
+    var divs = document.getElementsByClassName('divs');
+    var texts = document.getElementById('texts');
+    var wrapper = document.getElementById('wrapper');
+    var temp = 0;
+    function quit() {
+        location.href = 'index.html';
+    }
+    var name = sessionStorage.getItem('name');
+    span.innerHTML = name + '老师';
+
+
+    var brr = [1,2,3,4,5];
+    var arr = [];
+    function quertions(i) {
+        var xmlhttp1;
+        if (window.XMLHttpRequest) {
+            xmlhttp1 = new XMLHttpRequest();
+        }
+        else {
+            xmlhttp1 = new ActiveXObject('Microsoft.XMLHTTP')
+        }
+        xmlhttp1.open('post', 'http://127.0.0.1:3020', true);
+        xmlhttp1.send('index=' + JSON.stringify(brr[i]));
+        xmlhttp1.onreadystatechange = function () {
+            if (xmlhttp1.readyState == 4 && xmlhttp1.status == 200) {
+                var data1 = JSON.parse(xmlhttp1.responseText);
+                arr.push(data1[0])
+            }
+        };
+    }
+    quertions(0);
+    quertions(1);
+    quertions(2);
+    quertions(3);
+    quertions(4);
+
+
+
+    /*交卷状态*/
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest();
+    }
+    else {
+        xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+    }
+    xmlhttp.open('post', 'http://127.0.0.1:3040', true);
+    xmlhttp.send();
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            var data = JSON.parse(xmlhttp.responseText);
+            //console.log(data);
+            for(var i=0;i<data.length;i++) {
+                if(data[i].identity==1) {
+                    continue;
+                }
+                var div = document.createElement('div');
+                var span = document.createElement('span');
+                var br = document.createElement('br');
+                var br1 = document.createElement('br');
+                var span1 = document.createElement('span');
+                var span2 = document.createElement('span');
+                span.innerHTML = '学生:' + data[i].username;
+                div.appendChild(span);
+                div.appendChild(br);
+                if(data[i].status=='true') {
+                    span1.innerHTML = '状态:已交卷';
+                    div.appendChild(span1);
+
+                    if(data[i].grade) {
+                        div.appendChild(br1);
+                        span2.innerHTML = '得分:' + data[i].grade + '分';
+                        div.appendChild(span2);
+                        div.setAttribute('onclick','allreadySubmit(this)');
+                    }
+                    else {
+                        div.setAttribute('onclick','openStu(this)');
+                    }
+                }
+                else {
+                    span1.innerHTML = '状态:未交卷';
+                    div.appendChild(span1);
+                    div.setAttribute('onclick','noSubmit(this)');
+                }
+                box.appendChild(div);
+
+            }
+        }
+    };
+
+    function loadXML() {
+        var xmlhttp;
+        if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+        }
+        else {
+            xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+        }
+        xmlhttp.open('post', 'http://127.0.0.1:3050', true);
+        xmlhttp.send('username=' + sp[0].innerHTML);
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var data = JSON.parse(xmlhttp.responseText);
+                var anwser = data[0].anwser;
+                sp[1].innerHTML = anwser[temp].index;
+                for(var i=0;i<arr.length;i++) {
+                    if(arr[i]._id==anwser[temp].index) {
+                        divs[0].innerHTML = arr[i].question;
+                        break;
+                    }
+                }
+                divs[1].innerHTML = anwser[temp].anwser_content;
+                ++temp;
+            }
+        };
+    }
+
+    /*批改试卷*/
+    function openStu(_this) {
+        cases.style.display = 'none';
+        wrap.style.display = 'block';
+        sp[0].innerHTML = _this.children[0].innerHTML.slice(3);
+
+        loadXML();
+    }
+
+    function allreadySubmit(_this) {
+        alert('试卷已批改，请不要重复批改试卷');
+    }
+    function noSubmit(_this) {
+        alert('该学生还未提交试卷,请等该学生提交试卷后再进行批改');
+    }
+
+
+    function nextQues() {
+        if(!texts.value) {
+            alert('请批改试卷')
+        }
+        else{
+            grade+=Number(texts.value);
+            //console.log(grade);
+            if(temp>=2) {
+                wrap.style.display = 'none';
+                wrapper.style.display = 'block';
+            }
+            else {
+                loadXML();
+                texts.value='';
+            }
+        }
+    }
+
+
+    function backs() {
+        var xmlhttp;
+        if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+        }
+        else {
+            xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+        }
+        xmlhttp.open('post', 'http://127.0.0.1:3060', true);
+        xmlhttp.send('username=' + sp[0].innerHTML + '&grade=' + grade);
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var data = JSON.parse(xmlhttp.responseText);
+            }
+        };
+
+        location.reload();
+    }
+
+</script>
+</body>
+</html>
